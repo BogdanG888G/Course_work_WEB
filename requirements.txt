@@ -1,0 +1,17 @@
+# Django
+Django>=4.0,<5.0
+
+# PostgreSQL adapter for Django
+psycopg2-binary>=2.9,<3.0
+
+# Django Debug Toolbar
+django-debug-toolbar>=3.0,<4.0
+
+# Django extensions for PostgreSQL
+django-extensions>=3.0,<4.0
+
+# Django REST framework (if you plan to use it for API)
+djangorestframework>=3.12,<4.0
+
+# Pillow for image processing
+Pillow>=8.0,<9.0

@@ -1,0 +1,143 @@
+<!-- jojo_app/templates/stand_list.html -->
+
+{% extends "base.html" %}
+
+{% block extra_head %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .pagination a {
+            display: inline-block;
+            margin: 0 5px;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: #fff;
+            background-color: #007bff;
+            border-radius: 50%;
+            transition: background-color 0.3s ease;
+        }
+
+        .pagination a:hover {
+            background-color: #0056b3;
+        }
+
+        .pagination .current {
+            margin: 0 10px;
+            font-weight: bold;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <h1>Список стендов</h1>
+    <ul>
+        {% for stand in page_obj %}
+            <li style="display: flex; align-items: center; margin-bottom: 20px;">
+                <div style="margin-right: 20px;">
+                    <h2>Имя стенда: {{ stand.stand_name }}</h2>
+                    <p>Имя владельца: <b>{{ stand.stand_user }}</b></p>
+                    <img src="{{ stand.user_image.url }}" alt="{{ stand.stand_user }}" width="200">
+                </div>
+                <div style="margin-right: 20px;">
+                    <img src="{{ stand.stand_image.url }}" alt="{{ stand.stand_name }}" width="200">
+                </div>
+                <div>
+                    <canvas id="radarChart{{ stand.id }}" width="300" height="300"></canvas>
+                </div>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        const ctx{{ stand.id }} = document.getElementById('radarChart{{ stand.id }}').getContext('2d');
+                        const dataValues = [
+                            {% if stand.power == 'A' %}5{% elif stand.power == 'B' %}4{% elif stand.power == 'C' %}3{% elif stand.power == 'D' %}2{% else %}1{% endif %},
+                            {% if stand.speed == 'A' %}5{% elif stand.speed == 'B' %}4{% elif stand.speed == 'C' %}3{% elif stand.speed == 'D' %}2{% else %}1{% endif %},
+                            {% if stand.range == 'A' %}5{% elif stand.range == 'B' %}4{% elif stand.range == 'C' %}3{% elif stand.range == 'D' %}2{% else %}1{% endif %},
+                            {% if stand.durability == 'A' %}5{% elif stand.durability == 'B' %}4{% elif stand.durability == 'C' %}3{% elif stand.durability == 'D' %}2{% else %}1{% endif %},
+                            {% if stand.precision == 'A' %}5{% elif stand.precision == 'B' %}4{% elif stand.precision == 'C' %}3{% elif stand.precision == 'D' %}2{% else %}1{% endif %},
+                            {% if stand.potential == 'A' %}5{% elif stand.potential == 'B' %}4{% elif stand.potential == 'C' %}3{% elif stand.precision == 'D' %}2{% else %}1{% endif %}
+                        ];
+                        console.log(dataValues); // Проверка значений в консоли
+
+                        const radarChart{{ stand.id }} = new Chart(ctx{{ stand.id }}, {
+                            type: 'radar',
+                            data: {
+                                labels: ['Power', 'Speed', 'Range', 'Durability', 'Precision', 'Potential'],
+                                datasets: [{
+                                    label: '{{ stand.stand_name }} Characteristics',
+                                    data: dataValues,
+                                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                    borderColor: 'rgba(54, 162, 235, 1)',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                scale: {
+                                    min: 0,
+                                    max: 5,
+                                    ticks: {
+                                        stepSize: 1,
+                                        callback: function(value) {
+                                            if (value === 0) {
+                                                return '';
+                                            }
+                                            switch(value) {
+                                                case 1:
+                                                    return 'E';
+                                                case 2:
+                                                    return 'D';
+                                                case 3:
+                                                    return 'C';
+                                                case 4:
+                                                    return 'B';
+                                                case 5:
+                                                    return 'A';
+                                                default:
+                                                    return '';
+                                            }
+                                        },
+                                        font: {
+                                            size: 14
+                                        }
+                                    }
+                                },
+                                plugins: {
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(tooltipItem) {
+                                                const value = tooltipItem.raw;
+                                                const letter = ['E', 'D', 'C', 'B', 'A'][value - 1];
+                                                return `${tooltipItem.label}: ${value} (${letter})`;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    });
+                </script>
+            </li>
+        {% endfor %}
+    </ul>
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo;</a>
+                <a href="?page={{ page_obj.previous_page_number }}">&lsaquo;</a>
+            {% endif %}
+
+            <span class="current">
+                Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">&rsaquo;</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">&raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+{% endblock %}

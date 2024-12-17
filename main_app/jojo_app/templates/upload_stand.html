@@ -1,0 +1,12 @@
+<!-- jojo_app/templates/upload_stand.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Загрузить свой стенд</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Отправить</button>
+    </form>
+{% endblock %}
